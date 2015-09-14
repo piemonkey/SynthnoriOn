@@ -19,7 +19,6 @@ boolean [] track4;
 boolean isPlaying;
 
 Slider dt, dg, a, r, f, q, fa, o;
-Slider noteSlider;
 
 void setup()
 {
@@ -54,16 +53,15 @@ void setup()
   fa = new Slider("filterAmp", 20, 0, 100, 110, 130, 200, 20, HORIZONTAL);
   o = new Slider("transpose", 0, 1, 80, 110, 150, 200, 20, HORIZONTAL);
 
-  noteSlider = new Slider("note", 30, 0, 256, 0, 300, 200, 20, HORIZONTAL);
-
   frameRate(30);
 
-  bg = loadImage("brushedM.jpg");
+//  bg = loadImage("brushedM.jpg");
 }
 
 void draw()
 {
-  image(bg, 0, 0, width, height);
+  background(20);
+//  image(bg, 0, 0, width, height);
   stroke(255);
   for (int i = 0; i < 5; i++)
     line(0, 500+(i*height/12), width, 500+(i*height/12));
@@ -136,12 +134,6 @@ void draw()
     }
   }
   
-//  if (noteSlider.get()) {
-//    for (Synthesiser synth : synths) {
-//      synth.setNote(noteSlider.get());
-//    }
-//  }
-
   dt.display();
   dg.display();
   a.display();
@@ -151,8 +143,6 @@ void draw()
   fa.display(); 
   o.display();
   
-  noteSlider.display();
-
   for (Synthesiser synth : synths) {
     synth.tick();
   }
@@ -180,8 +170,6 @@ void mouseReleased()
   o.mouseReleased();
   fa.mouseReleased();
   
-  noteSlider.mouseReleased();
-
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
   if (track == 0)
@@ -205,8 +193,6 @@ void mouseDragged()
   fa.mouseDragged();
   o.mouseDragged();
   
-  noteSlider.mouseDragged();
-
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
   if (track == 0)
