@@ -7,10 +7,13 @@ Synthesiser[] synths;
 int playhead;
 
 int numBeats = 16;
-int numTracks = 4;
+int numTracks = 16;
 int currentBeat = 0;
 
-PImage bg;
+//PImage bg;
+int tenoriX = 350;
+int tenoriY = 20;
+int tenoriWidth = 600;
 
 boolean [][] tracks;
 
@@ -27,7 +30,7 @@ void setup()
     for (int i = 0; i < numBeats; i++) {
       tracks[trackIndex][i] = false;
     }
-    synths[trackIndex] = new Synthesiser(20 + 60 * trackIndex, tracks[trackIndex]);
+    synths[trackIndex] = new Synthesiser(10 + 10 * trackIndex, tracks[trackIndex]);
   }
 
   // name, value, min, max, pos.x, pos.y, width, height
@@ -36,9 +39,9 @@ void setup()
   a = new Slider("attack", 1, 0, 100, 110, 50, 200, 20, HORIZONTAL);
   r = new Slider("release", 20, 0, 100, 110, 70, 200, 20, HORIZONTAL);
   f = new Slider("filter", 20, 0, 100, 110, 90, 200, 20, HORIZONTAL);
-  q = new Slider("res", 20, 0, 100, 110, 110, 200, 20, HORIZONTAL);
+  q = new Slider("res", 10, 0, 100, 110, 110, 200, 20, HORIZONTAL);
   fa = new Slider("filterAmp", 20, 0, 100, 110, 130, 200, 20, HORIZONTAL);
-  o = new Slider("transpose", 0, 1, 80, 110, 150, 200, 20, HORIZONTAL);
+  o = new Slider("transpose", 20, 0, 60, 110, 150, 200, 20, HORIZONTAL);
 
   frameRate(30);
 
@@ -50,21 +53,27 @@ void draw()
   background(20);
 //  image(bg, 0, 0, width, height);
   stroke(255);
-  for (int i = 0; i < 5; i++)
-    line(0, 500+(i*height/12), width, 500+(i*height/12));
-  for (int i = 0; i < numBeats + 1; i++)
-    line(i*width/numBeats, 500, i*width/numBeats, 500+(4*height/12));
+  // Draw horizontal lines
+  for (int i = 0; i < numTracks + 1; i++) {
+    int yPos = tenoriY + (i * tenoriWidth/numBeats);
+    line(tenoriX, yPos, tenoriX + tenoriWidth, yPos);
+  }
+  // Draw vertical lines
+  for (int i = 0; i < numBeats + 1; i++) {
+    int xPos = tenoriX + (i * tenoriWidth/numBeats);
+    line(xPos, tenoriY, xPos, tenoriY + tenoriWidth);
+  }
 
-  int buttonWidth = width/numBeats;
-  int buttonHeight = height/12;
+  int buttonWidth = tenoriWidth/numBeats;
+  int buttonHeight = tenoriWidth/numTracks;
 
   for (int trackIndex = 0; trackIndex < numTracks; trackIndex++) {
     for (int i = 0; i < numBeats; i++) {
       noStroke();
-      fill(200, 0, 0);
+      fill(200, 200, 255);
   
       if (tracks[trackIndex][i]) {
-        rect(i*buttonWidth, 500+(trackIndex*buttonHeight), buttonWidth, buttonHeight);
+        rect(tenoriX + i*buttonWidth, tenoriY+(trackIndex*buttonHeight), buttonWidth, buttonHeight);
       }
     }
   }
@@ -132,7 +141,7 @@ void draw()
   playhead ++;
   if (playhead%4==0) {
     fill(0, 0, 200, 120);
-    rect(currentBeat*buttonWidth, 500, buttonWidth, height);
+    rect(tenoriX + currentBeat*buttonWidth, tenoriY, buttonWidth, tenoriWidth);
 
     currentBeat++;
     if (currentBeat >= numBeats)
@@ -153,9 +162,11 @@ void mouseReleased()
   o.mouseReleased();
   fa.mouseReleased();
   
-  int index = Math.floor(mouseX*numBeats/width);   
-  int track = Math.floor((mouseY-500)*(12/height));
-  tracks[track][index] = synths[track].toggleActive(index);
+  int index = Math.floor((mouseX - tenoriX) * numBeats/tenoriWidth);
+  int track = Math.floor((mouseY - tenoriY) * numTracks/tenoriWidth);
+  if (index >= 0 && index < numBeats && track >= 0 && track < numTracks) {
+    tracks[track][index] = synths[track].toggleActive(index);
+  }
 }
 
 void mouseDragged()
@@ -169,8 +180,10 @@ void mouseDragged()
   fa.mouseDragged();
   o.mouseDragged();
   
-  int index = Math.floor(mouseX*numBeats/width);   
-  int track = Math.floor((mouseY-500)*(12/height));
-  tracks[track][index] = synths[track].toggleActive(index);
+  int index = Math.floor((mouseX - tenoriX) * numBeats/tenoriWidth);
+  int track = Math.floor((mouseY - tenoriY) * numTracks/tenoriWidth);
+  if (index >= 0 && index < numBeats && track >= 0 && track < numTracks) {
+    tracks[track][index] = synths[track].toggleActive(index);
+  }
 }
 
