@@ -5,8 +5,9 @@ class Synthesiser {
   float filter, res, delayTime, attack, release, filterAttack;
   int playhead = 0, transpose = 0, delayAmount = 0;
   float[] wavetable = new float[514];
+  boolean[] activeBeats;
   
-  Synthesiser(float rawNote) {
+  Synthesiser(float rawNote, boolean[] activeBeats) {
     waveform = new Synth();
     setNote(rawNote);
     for (int i = 0; i < 515 ; i++) {
@@ -14,6 +15,13 @@ class Synthesiser {
     }
     waveform.waveTableSize(514);
     waveform.loadWaveTable(wavetable);
+    this.activeBeats = new boolean[activeBeats.length];
+    arrayCopy(activeBeats, this.activeBeats);
+  }
+  
+  boolean toggleActive(int index) {
+    activeBeats[index] = !activeBeats[index];
+    return activeBeats[index];
   }
   
   void setNote(float rawNote) {
@@ -63,7 +71,7 @@ class Synthesiser {
   }
   
   void tick() {
-    if (playhead%4==0) {
+    if (playhead%4==0 && activeBeats[playhead/4 % activeBeats.length]) {
       waveform.ramp(0.5, attack);
       waveform.setFrequency(mtof[note + 30]);
       waveform.filterRamp((filter/100) * (filterAttack*0.2), attack + release);

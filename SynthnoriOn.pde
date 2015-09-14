@@ -29,7 +29,21 @@ void setup()
 {
   size(1024, 768);
   maxim = new Maxim(this);
-  synth = new Synthesiser(30);
+  
+  track1 = new boolean[numBeats];
+  track2 = new boolean[numBeats];
+  track3 = new boolean[numBeats];
+  track4 = new boolean[numBeats]; 
+
+  for (int i = 0; i < numBeats; i++)
+  {
+    track1[i] = false;
+    track2[i] = false;
+    track3[i] = false;
+    track4[i] = false;
+  }
+
+  synth = new Synthesiser(30, track1);
   sample1 = maxim.loadFile("bd1.wav", 2048);
   sample2 = maxim.loadFile("sn1.wav", 2048);
   sample3 = maxim.loadFile("hh1.wav", 2048);
@@ -51,19 +65,6 @@ void setup()
   noteSlider = new Slider("note", 30, 0, 256, 0, 300, 200, 20, HORIZONTAL);
 
   frameRate(30);
-
-  track1 = new boolean[numBeats];
-  track2 = new boolean[numBeats];
-  track3 = new boolean[numBeats];
-  track4 = new boolean[numBeats]; 
-
-  for (int i = 0; i < numBeats; i++)
-  {
-    track1[i] = false;
-    track2[i] = false;
-    track3[i] = false;
-    track4[i] = false;
-  }
 
   bg = loadImage("brushedM.jpg");
 
@@ -150,10 +151,10 @@ void draw()
     fill(0, 0, 200, 120);
     rect(currentBeat*buttonWidth, 500, buttonWidth, height);
 
-    if (track1[currentBeat]){
-      sample1.cue(0);
-      sample1.play();
-    }
+//    if (track1[currentBeat]){
+//      sample1.cue(0);
+//      sample1.play();
+//    }
     if (track2[currentBeat]){
       sample2.cue(0);
       sample2.play();
@@ -202,7 +203,7 @@ void mouseReleased()
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
   if (track == 0)
-    track1[index] = !track1[index];
+    track1[index] = synth.toggleActive(index);
   if (track == 1)
     track2[index] = !track2[index];
   if (track == 2)
@@ -234,7 +235,7 @@ void mouseDragged()
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
   if (track == 0)
-    track1[index] = !track1[index];
+    track1[index] = synth.toggleActive(index);
   if (track == 1)
     track2[index] = !track2[index];
   if (track == 2)
