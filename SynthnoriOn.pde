@@ -1,6 +1,7 @@
 //The MIT License (MIT) - See Licence.txt for details
 
 //Copyright (c) 2013 Mick Grierson, Matthew Yee-King, Marco Gillies
+//Copyright (c) 2015 Richard Miller
 
 Maxim maxim;
 Synthesiser[] synths;
@@ -23,7 +24,7 @@ void setup()
 {
   size(1024, 768);
   maxim = new Maxim(this);
-  
+
   synths = new Synthesiser[numTracks];
   tracks = new boolean[numTracks][numBeats];
   for (int trackIndex = 0; trackIndex < numTracks; trackIndex++) {
@@ -71,7 +72,7 @@ void draw()
     for (int i = 0; i < numBeats; i++) {
       noStroke();
       fill(200, 200, 255);
-  
+
       if (tracks[trackIndex][i]) {
         rect(tenoriX + i*buttonWidth, tenoriY+(trackIndex*buttonHeight), buttonWidth, buttonHeight);
       }
@@ -125,16 +126,16 @@ void draw()
       synth.setTranspose(o.get());
     }
   }
-  
+
   dt.display();
   dg.display();
   a.display();
   r.display();
   f.display();
   q.display();
-  fa.display(); 
+  fa.display();
   o.display();
-  
+
   for (Synthesiser synth : synths) {
     synth.tick();
   }
@@ -161,7 +162,7 @@ void mouseReleased()
   q.mouseReleased();
   o.mouseReleased();
   fa.mouseReleased();
-  
+
   int index = Math.floor((mouseX - tenoriX) * numBeats/tenoriWidth);
   int track = Math.floor((mouseY - tenoriY) * numTracks/tenoriWidth);
   if (index >= 0 && index < numBeats && track >= 0 && track < numTracks) {
@@ -179,11 +180,10 @@ void mouseDragged()
   q.mouseDragged();
   fa.mouseDragged();
   o.mouseDragged();
-  
+
   int index = Math.floor((mouseX - tenoriX) * numBeats/tenoriWidth);
   int track = Math.floor((mouseY - tenoriY) * numTracks/tenoriWidth);
   if (index >= 0 && index < numBeats && track >= 0 && track < numTracks) {
     tracks[track][index] = synths[track].toggleActive(index);
   }
 }
-
