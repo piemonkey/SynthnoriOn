@@ -3,20 +3,16 @@
 //Copyright (c) 2013 Mick Grierson, Matthew Yee-King, Marco Gillies
 
 Maxim maxim;
-Synthesiser[] synths = new Synthesiser[4];
+Synthesiser[] synths;
 int playhead;
 
 int numBeats = 16;
+int numTracks = 4;
 int currentBeat = 0;
 
 PImage bg;
 
-boolean [] track1;
-boolean [] track2;
-boolean [] track3;
-boolean [] track4;
-
-boolean isPlaying;
+boolean [][] tracks;
 
 Slider dt, dg, a, r, f, q, fa, o;
 
@@ -25,23 +21,14 @@ void setup()
   size(1024, 768);
   maxim = new Maxim(this);
   
-  track1 = new boolean[numBeats];
-  track2 = new boolean[numBeats];
-  track3 = new boolean[numBeats];
-  track4 = new boolean[numBeats]; 
-
-  for (int i = 0; i < numBeats; i++)
-  {
-    track1[i] = false;
-    track2[i] = false;
-    track3[i] = false;
-    track4[i] = false;
+  synths = new Synthesiser[numTracks];
+  tracks = new boolean[numTracks][numBeats];
+  for (int trackIndex = 0; trackIndex < numTracks; trackIndex++) {
+    for (int i = 0; i < numBeats; i++) {
+      tracks[trackIndex][i] = false;
+    }
+    synths[trackIndex] = new Synthesiser(20 + 60 * trackIndex, tracks[trackIndex]);
   }
-
-  synths[0] = new Synthesiser(20, track1);
-  synths[1] = new Synthesiser(80, track2);
-  synths[2] = new Synthesiser(140, track3);
-  synths[3] = new Synthesiser(200, track4);
 
   // name, value, min, max, pos.x, pos.y, width, height
   dt = new Slider("delay time", 1, 0, 100, 110, 10, 200, 20, HORIZONTAL);
@@ -71,19 +58,15 @@ void draw()
   int buttonWidth = width/numBeats;
   int buttonHeight = height/12;
 
-  for (int i = 0; i < numBeats; i++)
-  {
-    noStroke();
-    fill(200, 0, 0);
-
-    if (track1[i])
-      rect(i*buttonWidth, 500+(0*buttonHeight), buttonWidth, buttonHeight);
-    if (track2[i])
-      rect(i*buttonWidth, 500+(1*buttonHeight), buttonWidth, buttonHeight);
-    if (track3[i])
-      rect(i*buttonWidth, 500+(2*buttonHeight), buttonWidth, buttonHeight);
-    if (track4[i])
-      rect(i*buttonWidth, 500+(3*buttonHeight), buttonWidth, buttonHeight);
+  for (int trackIndex = 0; trackIndex < numTracks; trackIndex++) {
+    for (int i = 0; i < numBeats; i++) {
+      noStroke();
+      fill(200, 0, 0);
+  
+      if (tracks[trackIndex][i]) {
+        rect(i*buttonWidth, 500+(trackIndex*buttonHeight), buttonWidth, buttonHeight);
+      }
+    }
   }
 
   if (f.get()) {
@@ -172,14 +155,7 @@ void mouseReleased()
   
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
-  if (track == 0)
-    track1[index] = synths[track].toggleActive(index);
-  if (track == 1)
-    track2[index] = synths[track].toggleActive(index);
-  if (track == 2)
-    track3[index] = synths[track].toggleActive(index);
-  if (track == 3)
-    track4[index] = synths[track].toggleActive(index);
+  tracks[track][index] = synths[track].toggleActive(index);
 }
 
 void mouseDragged()
@@ -195,13 +171,6 @@ void mouseDragged()
   
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
-  if (track == 0)
-    track1[index] = synths[track].toggleActive(index);
-  if (track == 1)
-    track2[index] = synths[track].toggleActive(index);
-  if (track == 2)
-    track3[index] = synths[track].toggleActive(index);
-  if (track == 3)
-    track4[index] = synths[track].toggleActive(index);
+  tracks[track][index] = synths[track].toggleActive(index);
 }
 
