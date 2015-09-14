@@ -3,11 +3,7 @@
 //Copyright (c) 2013 Mick Grierson, Matthew Yee-King, Marco Gillies
 
 Maxim maxim;
-AudioFilePlayer sample1;
-AudioFilePlayer sample2; 
-AudioFilePlayer sample3; 
-AudioFilePlayer sample4;
-Synthesiser synth;
+Synthesiser[] synths = new Synthesiser[4];
 int playhead;
 
 int numBeats = 16;
@@ -43,15 +39,11 @@ void setup()
     track4[i] = false;
   }
 
-  synth = new Synthesiser(30, track1);
-  sample1 = maxim.loadFile("bd1.wav", 2048);
-  sample2 = maxim.loadFile("sn1.wav", 2048);
-  sample3 = maxim.loadFile("hh1.wav", 2048);
-  sample4 = maxim.loadFile("sn2.wav", 2048);
-  sample1.setLooping(false);
-  sample2.setLooping(false);
-  sample3.setLooping(false);
-  sample4.setLooping(false);
+  synths[0] = new Synthesiser(20, track1);
+  synths[1] = new Synthesiser(80, track2);
+  synths[2] = new Synthesiser(140, track3);
+  synths[3] = new Synthesiser(200, track4);
+
   // name, value, min, max, pos.x, pos.y, width, height
   dt = new Slider("delay time", 1, 0, 100, 110, 10, 200, 20, HORIZONTAL);
   dg = new Slider("delay amnt", 1, 0, 100, 110, 30, 200, 20, HORIZONTAL);
@@ -67,8 +59,6 @@ void setup()
   frameRate(30);
 
   bg = loadImage("brushedM.jpg");
-
-  isPlaying=false;
 }
 
 void draw()
@@ -99,40 +89,58 @@ void draw()
   }
 
   if (f.get()) {
-    synth.setFilter(f.get());
+    for (Synthesiser synth : synths) {
+      synth.setFilter(f.get());
+    }
   }
 
   if (dt.get()) {
-    synth.setDelayTime(dt.get());
+    for (Synthesiser synth : synths) {
+      synth.setDelayTime(dt.get());
+    }
   }
 
   if (dg.get()) {
-    synth.setDelayAmount(dg.get());
+    for (Synthesiser synth : synths) {
+      synth.setDelayAmount(dg.get());
+    }
   }
 
   if (q.get()) {
-    synth.setRes(q.get());
+    for (Synthesiser synth : synths) {
+      synth.setRes(q.get());
+    }
   }
 
   if (a.get()) {
-    synth.setAttack(a.get());
+    for (Synthesiser synth : synths) {
+      synth.setAttack(a.get());
+    }
   }
 
   if (r.get()) {
-    synth.setRelease(r.get());
+    for (Synthesiser synth : synths) {
+      synth.setRelease(r.get());
+    }
   }
 
   if (fa.get()) {
-    synth.setFilterAttack(fa.get());
+    for (Synthesiser synth : synths) {
+      synth.setFilterAttack(fa.get());
+    }
   }
 
   if (o.get()) {
-    synth.setTranspose(o.get());
+    for (Synthesiser synth : synths) {
+      synth.setTranspose(o.get());
+    }
   }
   
-  if (noteSlider.get()) {
-    synth.setNote(noteSlider.get());
-  }
+//  if (noteSlider.get()) {
+//    for (Synthesiser synth : synths) {
+//      synth.setNote(noteSlider.get());
+//    }
+//  }
 
   dt.display();
   dg.display();
@@ -145,28 +153,13 @@ void draw()
   
   noteSlider.display();
 
-  synth.tick();
+  for (Synthesiser synth : synths) {
+    synth.tick();
+  }
   playhead ++;
   if (playhead%4==0) {
     fill(0, 0, 200, 120);
     rect(currentBeat*buttonWidth, 500, buttonWidth, height);
-
-//    if (track1[currentBeat]){
-//      sample1.cue(0);
-//      sample1.play();
-//    }
-    if (track2[currentBeat]){
-      sample2.cue(0);
-      sample2.play();
-    }
-    if (track3[currentBeat]){
-      sample3.cue(0);
-      sample3.play();
-    }
-    if (track4[currentBeat]){
-      sample4.cue(0);
-      sample4.play();
-    }
 
     currentBeat++;
     if (currentBeat >= numBeats)
@@ -175,17 +168,6 @@ void draw()
 
 }
 
-
-void mousePressed()
-{
-
-  if (!isPlaying) {
-
-    isPlaying=true; 
-    sample1.cue(0);
-    sample1.play();
-  }
-}
 
 void mouseReleased()
 {
@@ -203,24 +185,17 @@ void mouseReleased()
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
   if (track == 0)
-    track1[index] = synth.toggleActive(index);
+    track1[index] = synths[track].toggleActive(index);
   if (track == 1)
-    track2[index] = !track2[index];
+    track2[index] = synths[track].toggleActive(index);
   if (track == 2)
-    track3[index] = !track3[index];
+    track3[index] = synths[track].toggleActive(index);
   if (track == 3)
-    track4[index] = !track4[index];
+    track4[index] = synths[track].toggleActive(index);
 }
 
 void mouseDragged()
 {
-
-  if (!isPlaying) {
-
-    isPlaying=true; 
-    sample1.cue(0);
-    sample1.play();
-  }
   dt.mouseDragged();
   dg.mouseDragged();
   a.mouseDragged();
@@ -235,12 +210,12 @@ void mouseDragged()
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
   if (track == 0)
-    track1[index] = synth.toggleActive(index);
+    track1[index] = synths[track].toggleActive(index);
   if (track == 1)
-    track2[index] = !track2[index];
+    track2[index] = synths[track].toggleActive(index);
   if (track == 2)
-    track3[index] = !track3[index];
+    track3[index] = synths[track].toggleActive(index);
   if (track == 3)
-    track4[index] = !track4[index];
+    track4[index] = synths[track].toggleActive(index);
 }
 
