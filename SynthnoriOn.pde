@@ -7,7 +7,7 @@ AudioFilePlayer sample1;
 AudioFilePlayer sample2; 
 AudioFilePlayer sample3; 
 AudioFilePlayer sample4;
-Synth waveform;
+Synthesiser synth;
 int playhead;
 int[] notes = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -25,12 +25,6 @@ boolean [] track4;
 
 boolean isPlaying;
 
-float fc, res, attack, release, filterAttack;
-
-int transpose = 0;
-
-float[] wavetable = new float[514]; 
-
 Slider dt, dg, a, r, f, q, fa, o;
 MultiSlider seq;
 
@@ -38,7 +32,7 @@ void setup()
 {
   size(1024, 768);
   maxim = new Maxim(this);
-  waveform = new Synth();
+  synth = new Synthesiser(notes);
   sample1 = maxim.loadFile("bd1.wav", 2048);
   sample2 = maxim.loadFile("sn1.wav", 2048);
   sample3 = maxim.loadFile("hh1.wav", 2048);
@@ -47,7 +41,6 @@ void setup()
   sample2.setLooping(false);
   sample3.setLooping(false);
   sample4.setLooping(false);
-  //waveform.volume(0);
   // name, value, min, max, pos.x, pos.y, width, height
   dt = new Slider("delay time", 1, 0, 100, 110, 10, 200, 20, HORIZONTAL);
   dg = new Slider("delay amnt", 1, 0, 100, 110, 30, 200, 20, HORIZONTAL);
@@ -63,11 +56,6 @@ void setup()
 
   frameRate(30);
 
-  for (int i = 0; i < 514 + 1 ; i++) {
-
-    wavetable[i]=((float)i/512)-0.5;
-  }
-
   track1 = new boolean[numBeats];
   track2 = new boolean[numBeats];
   track3 = new boolean[numBeats];
@@ -81,9 +69,6 @@ void setup()
     track4[i] = false;
   }
 
-  waveform.waveTableSize(514);
-  waveform.loadWaveTable(wavetable);
-
   bg = loadImage("brushedM.jpg");
 
   isPlaying=false;
@@ -91,8 +76,6 @@ void setup()
 
 void draw()
 {
-  waveform.play();
-
   image(bg, 0, 0, width, height);
   stroke(255);
   for (int i = 0; i < 5; i++)
@@ -119,37 +102,35 @@ void draw()
   }
 
   if (f.get()) {
-    fc=f.get()*100;
-    waveform.setFilter(fc, res);
+    synth.setFilter(f.get());
   }
 
   if (dt.get()) {
-    waveform.setDelayTime((float) dt.get()/50);
+    synth.setDelayTime(dt.get());
   }
 
   if (dg.get()) {
-    waveform.setDelayAmount((int)dg.get()/100);
+    synth.setDelayAmount(dg.get());
   }
 
   if (q.get()) {
-    res=q.get();
-    waveform.setFilter(fc, res);
+    synth.setRes(q.get());
   }
 
   if (a.get()) {
-    attack=a.get()*10;
+    synth.setAttack(a.get());
   }
 
   if (r.get()) {
-    release=r.get()*10;
+    synth.setRelease(r.get());
   }
 
   if (fa.get()) {
-    filterAttack=fa.get()*10;
+    synth.setFilterAttack(fa.get());
   }
 
   if (o.get()) {
-    transpose=Math.floor(o.get());
+    synth.setTranspose(o.get());
   }
 
   dt.display();
@@ -162,12 +143,9 @@ void draw()
   o.display();
   seq.display();
 
+  synth.tick();
   playhead ++;
   if (playhead%4==0) {
-    waveform.ramp(0.5, attack);
-    waveform.setFrequency(mtof[notes[playhead/4%16]+30]);
-    waveform.filterRamp((fc/100)*(filterAttack*0.2), attack+release); 
-
     fill(0, 0, 200, 120);
     rect(currentBeat*buttonWidth, 500, buttonWidth, height);
 
@@ -193,9 +171,6 @@ void draw()
       currentBeat = 0;
   }
 
-  if (playhead%4==1) {
-    waveform.ramp(0., release);
-  }
 }
 
 
@@ -213,9 +188,10 @@ void mousePressed()
 void mouseReleased()
 {
   for (int i=0;i<notes.length;i++) {
-
-    notes[i]=(Math.floor((seq.get(i)/256)*12+transpose)); 
+    notes[i]=seq.get(i);
   }
+  synth.setNotes(notes);
+  
   dt.mouseReleased();
   dg.mouseReleased();
   a.mouseReleased();
@@ -268,5 +244,4 @@ void mouseDragged()
   if (track == 3)
     track4[index] = !track4[index];
 }
-
 
