@@ -1,14 +1,14 @@
 class Synthesiser {
   Synth waveform;
-  int[] notes;
-  float[] rawNotes;
+  int note;
+  float rawNote;
   float filter, res, delayTime, attack, release, filterAttack;
   int playhead = 0, transpose = 0, delayAmount = 0;
   float[] wavetable = new float[514];
   
-  Synthesiser(int[] rawNotes) {
+  Synthesiser(float rawNote) {
     waveform = new Synth();
-    setNotes(rawNotes);
+    setNote(rawNote);
     for (int i = 0; i < 515 ; i++) {
       wavetable[i]=((float)i/512)-0.5;
     }
@@ -16,17 +16,13 @@ class Synthesiser {
     waveform.loadWaveTable(wavetable);
   }
   
-  void setNotes(int[] rawNotes) {
-    this.rawNotes = new int[rawNotes.length];      
-    arrayCopy(rawNotes, this.rawNotes);
-    calculateNotes();
+  void setNote(float rawNote) {
+    this.rawNote = rawNote;      
+    calculateNote();
   }
   
-  void calculateNotes() {
-    notes = new int[rawNotes.length];
-    for (int i=0; i < rawNotes.length; i++) {
-      notes[i]=(Math.floor((rawNotes[i]/256)*12+transpose)); 
-    }
+  void calculateNote() {
+    note = Math.floor((rawNote/256)*12+transpose); 
   }
   
   void setFilter(float filter) {
@@ -63,13 +59,13 @@ class Synthesiser {
   
   void setTranspose(float transpose) {
     this.transpose=Math.floor(transpose);
-    calculateNotes();
+    calculateNote();
   }
   
   void tick() {
     if (playhead%4==0) {
       waveform.ramp(0.5, attack);
-      waveform.setFrequency(mtof[notes[playhead/4 % notes.length] + 30]);
+      waveform.setFrequency(mtof[note + 30]);
       waveform.filterRamp((filter/100) * (filterAttack*0.2), attack + release);
     }
     if (playhead%4==1) {

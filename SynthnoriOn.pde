@@ -9,9 +9,6 @@ AudioFilePlayer sample3;
 AudioFilePlayer sample4;
 Synthesiser synth;
 int playhead;
-int[] notes = {
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-};
 
 int numBeats = 16;
 int currentBeat = 0;
@@ -26,13 +23,13 @@ boolean [] track4;
 boolean isPlaying;
 
 Slider dt, dg, a, r, f, q, fa, o;
-MultiSlider seq;
+Slider noteSlider;
 
 void setup()
 {
   size(1024, 768);
   maxim = new Maxim(this);
-  synth = new Synthesiser(notes);
+  synth = new Synthesiser(30);
   sample1 = maxim.loadFile("bd1.wav", 2048);
   sample2 = maxim.loadFile("sn1.wav", 2048);
   sample3 = maxim.loadFile("hh1.wav", 2048);
@@ -50,9 +47,8 @@ void setup()
   q = new Slider("res", 20, 0, 100, 110, 110, 200, 20, HORIZONTAL);
   fa = new Slider("filterAmp", 20, 0, 100, 110, 130, 200, 20, HORIZONTAL);
   o = new Slider("transpose", 0, 1, 80, 110, 150, 200, 20, HORIZONTAL);
-  // name,s min, max, pos.x, pos.y, width, height
-  seq = new MultiSlider(notes.length, 0, 256, 0, 300, width/18/2, 150, UPWARDS);
-  // name, value, min, max, pos.x, pos.y, width, height
+
+  noteSlider = new Slider("note", 30, 0, 256, 0, 300, 200, 20, HORIZONTAL);
 
   frameRate(30);
 
@@ -132,6 +128,10 @@ void draw()
   if (o.get()) {
     synth.setTranspose(o.get());
   }
+  
+  if (noteSlider.get()) {
+    synth.setNote(noteSlider.get());
+  }
 
   dt.display();
   dg.display();
@@ -141,7 +141,8 @@ void draw()
   q.display();
   fa.display(); 
   o.display();
-  seq.display();
+  
+  noteSlider.display();
 
   synth.tick();
   playhead ++;
@@ -187,11 +188,6 @@ void mousePressed()
 
 void mouseReleased()
 {
-  for (int i=0;i<notes.length;i++) {
-    notes[i]=seq.get(i);
-  }
-  synth.setNotes(notes);
-  
   dt.mouseReleased();
   dg.mouseReleased();
   a.mouseReleased();
@@ -200,7 +196,8 @@ void mouseReleased()
   q.mouseReleased();
   o.mouseReleased();
   fa.mouseReleased();
-  seq.mouseReleased();
+  
+  noteSlider.mouseReleased();
 
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
@@ -231,7 +228,8 @@ void mouseDragged()
   q.mouseDragged();
   fa.mouseDragged();
   o.mouseDragged();
-  seq.mouseDragged();
+  
+  noteSlider.mouseDragged();
 
   int index = Math.floor(mouseX*numBeats/width);   
   int track = Math.floor((mouseY-500)*(12/height));
